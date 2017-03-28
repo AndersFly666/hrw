@@ -29,8 +29,10 @@ class Detail extends React.Component {
   fetchFeed(type) {
     ajax.get(`https://api.github.com/repos/facebook/react/${type}`)
       .end((err, res) => {
-        if(!err && res) {
-          this.setState({ [type]: res.body });
+        if (!err && res) {
+          this.setState({
+            [type]: res.body
+          });
         } else {
           console.error(`There was an error when fetching ${type}: `, err);
         }
