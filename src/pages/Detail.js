@@ -6,4 +6,4 @@ class Detail extends React.Component {
   }
 }
 
-export default Details;
+export default Detail;
