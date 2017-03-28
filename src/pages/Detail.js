@@ -5,34 +5,44 @@ class Detail extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      name: chance.first(),
-      country:  chance.country({ full: true })
-    }
+    const people = this._generatePeoples(10);
+
+    this.state = { people };
     
     this.handleButtonClick = this.handleButtonClick.bind(this);
   }
 
   handleButtonClick() {
-    let newName = chance.first();
-    let newCountry = chance.country({ full: true });
+    const newState = {
+      name: chance.first(),
+      country: chance.country({ full: true })
+    };
 
-    this.setState({ name: newName });
-    this.setState({ country: newCountry})
-
-    this.forceUpdate();
+    this.setState(newState);
   }
 
+
+_generatePeoples(num) {
+  const peoples = [];
+
+  for (let i = 0; i < num; i++) {
+    let people = {
+      name: chance.first(),
+      country: chance.country({ full: true })
+    };
+
+    peoples.push(people);
+  }
+
+  return peoples;
+}
+
   render() {
-    return (
-      <div>
-        <p>Hello, { this.state.name }.</p>
-        <p>You are from { this.state.country }</p>
-        <button onClick={ this.handleButtonClick }>
-          Meet someone new
-        </button>
-      </div>
-    )
+    return (<div>
+    { this.state.people.map((person, index) => (
+      <p key={ index }>Hello, { person.name } from { person.country }!</p> 
+    )) }
+    </div>);
   }
 }
 
