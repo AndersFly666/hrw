@@ -5,7 +5,7 @@ class Detail extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { 
+    this.state = {
       commits: [],
       forks: [],
       pulls: [],
