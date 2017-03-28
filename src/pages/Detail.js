@@ -9,13 +9,28 @@ class Detail extends React.Component {
       name: chance.first(),
       country:  chance.country({ full: true })
     }
+    
+    this.handleButtonClick = this.handleButtonClick.bind(this);
+  }
+
+  handleButtonClick() {
+    let newName = chance.first();
+    let newCountry = chance.country({ full: true });
+
+    this.setState({ name: newName });
+    this.setState({ country: newCountry})
+
+    this.forceUpdate();
   }
 
   render() {
     return (
       <div>
         <p>Hello, { this.state.name }.</p>
-        <p>You are from { this.state.country }</p> 
+        <p>You are from { this.state.country }</p>
+        <button onClick={ this.handleButtonClick }>
+          Meet someone new
+        </button>
       </div>
     )
   }
