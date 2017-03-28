@@ -12,103 +12,66 @@ class Detail extends React.Component {
       viewMode: 'commits'
     };
 
-    this.renderCommits = this.renderCommits.bind(this);
-    this.renderForks = this.renderForks.bind(this);
-    this.renderPulls = this.renderPulls.bind(this);
-    this.setViewModeCommits = this.setViewModeCommits.bind(this);
-    this.setViewModeForks = this.setViewModeForks.bind(this);
-    this.setViewModePulls = this.setViewModePulls.bind(this);
-    this.renderProperItems = this.renderProperItems.bind(this);
+    this.setViewMode = this.setViewMode.bind(this);
   }
 
   componentWillMount() {
     // get commits
-    ajax.get('https://api.github.com/repos/facebook/react/commits')
-      .end((err, res) => {
-        if(!err && res) {
-          this.setState({ commits: res.body });
-          console.dir(this.state.commits);
-        } else {
-          console.error('There was an error when fetching commits: ', err);
-        }
-      });
+    this.fetchFeed('commits');
 
     // get forks
-    ajax.get('https://api.github.com/repos/facebook/react/forks')
-      .end((err, res) => {
-        if(!err && res) {
-          this.setState({ forks: res.body });
-        } else {
-          console.error('There was an error when fetching forks: ', err);
-        }
-      });
+    this.fetchFeed('forks');
 
-    // get pull requests
-    ajax.get('https://api.github.com/repos/facebook/react/pulls')
+    // get pulls
+    this.fetchFeed('pulls');
+  }
+
+  fetchFeed(type) {
+    ajax.get(`https://api.github.com/repos/facebook/react/${type}`)
       .end((err, res) => {
         if(!err && res) {
-          this.setState({ pulls: res.body });
+          this.setState({ [type]: res.body });
         } else {
-          console.error('There was an error when fething pull requests: ', err);
+          console.error(`There was an error when fetching ${type}: `, err);
         }
       });
+  }
+
+  setViewMode(event) {
+    this.setState({ viewMode: event.currentTarget.dataset.mode });
   }
 
   renderCommits() {
-    return (<div>
-      { this.state.commits.map((commit, index) => {
-        const author = commit.author ? commit.author.login : 'Anonymous';
-        const url = commit.html_url ? commit.html_url : '#';
-        const message = commit.commit.message ? commit.commit.message : 'No message';
-
-        return (<p key={ index }>
-          <strong>{ author }</strong>:
-          <a href={ url }>{ message }</a>
-        </p>)
-      }) }
-    </div>)
+    return this.state.commits.map((commit, index) => {
+      const author = commit.author ? commit.author.login : 'Anon';
+      return (<p key={ index }>
+        <strong>{ author }</strong>:
+        <a href={ commit.html_url }>{ commit.commit.message }</a>
+      </p>)
+    })
   }
 
   renderForks() {
-    return (<div>
-      { this.state.forks.map((fork, index) => {
-        const forkName = fork.full_name ? fork.full_name : 'Unknown'; 
-        const url = fork.html_url ? fork.html_url : '#';
-        const description = fork.description ? fork.description : 'No description';
+    return this.state.forks.map((fork, index) => {
+      const owner = fork.owner ? fork.owner.login : 'Anon';
+      const creationDate = new Date(fork.created_at);
 
-        return (<p key={ index }>
-          <strong>{ forkName }</strong>:
-          <a href={ url }>{ description }</a>
-        </p>)
-      }) }
-    </div>)
+      return (<p key={ index }>
+        <strong>{ owner }</strong>: forked to 
+        <a href={ fork.html_url }> { fork.html_url }</a> at { creationDate.toLocaleString() }.
+      </p>)
+    });
   }
 
   renderPulls() {
-    return (<div>
-      { this.state.pulls.map((pull, index) => {
-        const author = pull.user ? pull.user.login : 'Anonymous';
-        const url = pull.html_url ? pull.html_url : '#';
-        const title = pull.title ? pull.title : 'No title';
+    return this.state.pulls.map((pull, index) => {
+      const author = pull.user ? pull.user.login : 'Anonymous';
 
-        return (<p key={ index }>
-          <strong>{ author }</strong>:
-          <a href={ url }>{ title }</a>
-        </p>)
-      }) }
-    </div>)
-  }
-
-  setViewModeCommits() {
-    this.setState({ viewMode: 'commits' });
-  }
-  
-  setViewModeForks() {
-    this.setState({ viewMode: 'forks' });
-  }
-
-  setViewModePulls() {
-    this.setState({ viewMode: 'pulls' });
+      return (<p key={ index }>
+        <strong>{ author }</strong>:
+        <a href={ pull.html_url }>{ pull.body }</a>
+      </p>)
+    });
   }
 
   renderProperItems(viewMode) {
@@ -123,19 +86,20 @@ class Detail extends React.Component {
   }
 
   render() {
-    let viewMode = this.state.viewMode;
+    let content = this.renderProperItems(this.state.viewMode)
 
     return (<div>
-    <button onClick={ this.setViewModeCommits }>
-      Show commits
-    </button>
-    <button onClick={ this.setViewModeForks }>
-      Show forks
-    </button>
-    <button onClick={ this.setViewModePulls }>
-      Show pull requests
-    </button>
-    { this.renderProperItems(viewMode) }
+      <button onClick={ this.setViewMode } data-mode="commits">
+        Show commits
+      </button>
+      <button onClick={ this.setViewMode } data-mode="forks">
+        Show forks
+      </button>
+      <button onClick={ this.setViewMode } data-mode="pulls">
+        Show pull requests
+      </button>
+      <h2>{ this.state.viewMode.toUpperCase() }</h2>
+      { content }
     </div>)
   }
 }
