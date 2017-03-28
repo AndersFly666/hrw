@@ -1,1 +1,1 @@
-console.log('React is up and running!');
+console.log('React is up!');
